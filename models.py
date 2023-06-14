@@ -1,15 +1,13 @@
-""" 
-  various neural network models in haiku 
-
-  inspired by: 
+"""  Various neural network models in haiku 
+  Inspired by: 
   https://github.com/izmailovpavel/neurips_bdl_starter_kit/blob/main/jax_models.py 
 """
 
 import haiku as hk
 import jax
 import jax.numpy as jnp
-import functools
 from haiku.initializers import Constant
+import functools
 
 he_normal = hk.initializers.VarianceScaling(2.0, 'fan_in', 'truncated_normal')
 _DEFAULT_BN_CONFIG = {

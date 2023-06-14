@@ -1,17 +1,19 @@
 import argparse
-import pickle 
-import os 
+import os
 import sys
+import pickle
+
 import numpy as np
 import jax
-import jax.numpy as jnp 
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
-import torch
-from torchvision.utils import make_grid, save_image 
 import torch
 import torchvision
 import torchvision.transforms as transforms
 import matplotlib
+
+from torchvision.utils import make_grid, save_image
+
 from data import dataloader
 
 def main():

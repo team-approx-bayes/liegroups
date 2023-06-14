@@ -1,10 +1,10 @@
 """ lie-group optimizers given in appendix of the paper """
 
-from copy import deepcopy
 from typing import NamedTuple
+import numpy as np
 import jax
 import jax.numpy as jnp
-import numpy as np
+from copy import deepcopy
 
 class TrainState(NamedTuple):
     """

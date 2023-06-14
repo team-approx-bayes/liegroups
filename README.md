@@ -29,7 +29,7 @@ This should also train to around 98%.
 
 ### first layer filter visualizations
 
-To reproduce the figures visualizing the filters, run the following:
+To reproduce the figures visualizing the filters, run the following (after training the tanh-MLP networks using the above commands):
 
 ```
 python3 plot_filters.py --resultsfolder results/mnist_mlp/additive/run_0 
@@ -62,7 +62,7 @@ python3 train.py --optim additive --alpha1 0.5 --beta1 0.8 --dataset cifar10 --m
 To evaluate ECE, nll and accuracy of the trained models, run the following command specifying the folder where the results have been saved:
 
 ```
-python3 test.py --resultsfolder results/resnet20/affine/run_0
+python3 test.py --resultsfolder results/cifar10_resnet20/affine/run_0
 ```
 
 This produces an output as follows, cf. also Table 2 in the paper:
@@ -73,8 +73,9 @@ results at model average (32 samples):
   > testacc=92.02%, nll=0.2661, ece=0.0247
 ```
 
+We can also evaluate our additive learning rule:
 ```
-python3 test.py --resultsfolder results/resnet20/additive/run_0
+python3 test.py --resultsfolder results/cifar10_resnet20/additive/run_0
 ```
 
 This produces an output as follows, cf. also Table 2 in the paper:

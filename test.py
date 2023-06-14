@@ -1,16 +1,16 @@
-""" evaluate nll, ece and accuracy """
-
 import argparse
-import os 
-import pickle 
-import jax 
+import os
+import pickle
 import sys
-import torch
+
 import numpy as np
+import torch
+import jax
 import jax.numpy as jnp
 from jax.scipy.special import logsumexp
-from models import get_model
+
 from data import dataloader
+from models import get_model
 from train import get_optimizer
 from util import ece
 

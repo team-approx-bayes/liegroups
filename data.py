@@ -1,5 +1,3 @@
-""" pytorch dataloaders for all datasets used in the paper """
-
 import os
 import torch
 import torchvision
