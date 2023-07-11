@@ -5,7 +5,7 @@ E. M. Kiral, T. Möllenhoff, M. E. Khan, AISTATS 2023.
 ## installation and requirements
 The code requires [JAX](https://github.com/google/jax) and various other standard dependencies such as matplotlib and numpy; see the 'requirements.txt'. 
 
-To train on TinyImageNet, you will need to download the dataset from [here](.) 
+To train on TinyImageNet, you will need to download the dataset from [here](http://cs231n.stanford.edu/tiny-imagenet-200.zip) 
 and extract it into the datasetfolder directory (see the 'data.py' file). 
 
 ## examples
