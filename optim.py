@@ -260,7 +260,7 @@ def affine_optimizer(
         avggrad_U = jax.tree_map(lambda x, u, A, e: (k * x + A * e * u) / (k + 1.0), \
             carry[0], samplegrad, A, epsi)
         avggrad_V = jax.tree_map(lambda x, u, A: (k * x + A * u) / (k + 1.0), \
-            carry[0], samplegrad, A)
+            carry[1], samplegrad, A)
         avgloss = (k * carry[2] + sampleloss) / (k + 1.0)     
 
         return avggrad_U, avggrad_V, avgloss
