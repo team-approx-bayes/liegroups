@@ -86,6 +86,20 @@ results at model average (32 samples):
   > testacc=92.21%, nll=0.2688, ece=0.0268
 ```
 
+### training with multiple MC samples
+
+We can run the affine learning rule using multiple random samples as follows:
+```
+python3 train.py --optim affine --temperature 1 --alpha1 1.0 --alpha2 0.05 --beta1 0.8 --beta2 0.999 --dataset cifar10 --model resnet20 --noise gaussian --batchsize 200 --mc 3 --noiseconfig 0.01 --batchsplit 1 --epochs 180 --priorprec 25
+```
+This will be more computationally expensive but leads to improved results:
+```
+results at g:
+  > testacc=92.13%, nll=0.2747, ece=0.0348
+results at model average (32 samples):
+  > testacc=92.42%, nll=0.2403, ece=0.0099
+```
+
 ## troubleshooting
 
 Please contact [Thomas](thomas.moellenhoff@riken.jp) if there are issues or quesitons about the code, or raise an issue here in this github repository.
