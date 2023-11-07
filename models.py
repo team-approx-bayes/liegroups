@@ -113,7 +113,7 @@ def make_mlp_fn(output_dim, layer_dims, nonlinearity = jax.nn.elu):
 
     return forward
 
-def make_cnn_fn(output_dim, width=1, nonlinearity = jax.nn.relu):
+def make_cnn_fn(output_dim, width=4, nonlinearity = jax.nn.elu):
 
     def forward(x):
         biasinit = Constant(0.05)
@@ -143,7 +143,7 @@ def get_model(model_name, num_classes, **kwargs):
         "resnet20": functools.partial(
             make_resnet20_frn_fn, activation=lambda x: x),
         "cnn": functools.partial(
-            make_cnn_fn, width=1, nonlinearity=jax.nn.relu), 
+            make_cnn_fn, width=4, nonlinearity=jax.nn.elu), 
         "mlp": functools.partial(
             make_mlp_fn, layer_dims=[1024, 512, 256, 256, 256], nonlinearity=jax.nn.tanh),
         "mlptiny": functools.partial(

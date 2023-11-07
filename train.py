@@ -64,7 +64,8 @@ def get_optimizer(args, ndata, modelinit, modelapply, params, datapoint, initkey
             noisegenerator = lambda x, k: noisegenerators[args.noise](x, k, args.noiseconfig, args.mc),
             temperature = args.temperature / (float(ndata) * args.dafactor), 
             mcsamples = args.mc,
-            batchsplit = args.batchsplit)
+            batchsplit = args.batchsplit,
+            init_offset = args.multinitoffset)
         
         params = (params, modelinit(initkey, datapoint))
     
@@ -134,6 +135,8 @@ def main():
                         default=1.0, help='hyperparam of noise distribution')
     parser.add_argument('--custominit', dest='custominit', type=float, 
                         default=1.0, help='special initialization value for variance')
+    parser.add_argument('--multinitoffset', dest='multinitoffset', type=float, 
+                        default=1e-5, help='initialization offset')
     
     parser.set_defaults(augment = True)
     args = parser.parse_args()
@@ -154,7 +157,7 @@ def main():
 
     # fix randomseeds
     rngkey = jax.random.PRNGKey(args.randomseed)
-    np.random.seed(args.randomseed)
+    #np.random.seed(args.randomseed)
     torch.manual_seed(args.randomseed) 
 
     # prepare dataset 
@@ -204,9 +207,10 @@ def main():
 
         return trainstate, jnp.mean(jnp.array(losses))
 
-    def testacc(trainstate): 
+    def testestimate(trainstate): 
         correct = 0
         total = 0
+        test_nll = 0
 
         for batch_idx, (inputs, targets) in enumerate(testloader):
             dat = jnp.array(inputs.numpy().transpose(0, 2, 3, 1))
@@ -216,15 +220,21 @@ def main():
             logitsmean = modelapply(theta, None, dat)
 
             correct += jnp.sum(logitsmean.argmax(axis=1) == tgt.argmax(axis=1))
+            test_nll += nll_categorical(logitsmean, tgt)
             total += logitsmean.shape[0]    
 
-        return float(correct) / float(total)
+        return float(correct) / float(total), test_nll / float(total)
 
     trainstate = optinit(params, rngkey)
     optstep = jax.jit(optstep)
 
     # main loop
     total_time = 0.0 
+    with open(os.path.join(outpath, 'info.txt'), 'wt', encoding='utf-8') as file:
+        file.write('\n'.join(f'{k}={v}' for k,
+                    v in args.__dict__.items()))
+        file.write('\n')
+
     for epoch in trange(args.epochs + 1, 
                         bar_format='{l_bar}{bar:10}{r_bar}{bar:-10b}', smoothing=1.):
         # learning rate scheduler
@@ -238,20 +248,18 @@ def main():
         trainstate, loss = train_epoch(trainstate, lrfactor)
 
         # save intermediate results
-        acc = testacc(trainstate) * 100.0
+        acc, test_nll = testestimate(trainstate) 
+        acc = acc * 100.0
         tprint(f"""[{epoch:3d}/{args.epochs}] Trainloss (at samples): {loss:.3f}"""
-               f""" | Acc: {acc:.3f} """)
+               f""" | TestNLL: {test_nll:.3f} Acc: {acc:.3f} """)
             
         with open(os.path.join(outpath, 'trainstate.pickle'), 'wb') as file:
             pickle.dump(trainstate, file)
             pickle.dump(args, file)
 
-        with open(os.path.join(outpath, 'info.txt'), 'wt', encoding='utf-8') as file:
-            file.write('\n'.join(f'{k}={v}' for k,
-                       v in args.__dict__.items()))
-            file.write('\n')
+        with open(os.path.join(outpath, 'info.txt'), 'a', encoding='utf-8') as file:
             file.write(f"""[{epoch:3d}/{args.epochs}] Trainloss (at samples): {loss:.3f}"""
-                       f""" | Acc: {acc:.3f} """)
+                       f""" | TestNLL: {test_nll:.3f} Acc: {acc:.3f} """)
 
 if __name__ == '__main__':
     main()

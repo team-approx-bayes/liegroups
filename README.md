@@ -46,6 +46,24 @@ python3 plot_filters.py --resultsfolder results/mnist_mlp/multiplicative/run_0
 
 The above filter images are saved by the script in the resultsfolder as png files. 
 
+### multiplicative updates for CNN architecture
+Training a LeNet-like CNN on CIFAR-10 with the multiplicative updates:
+```
+python3 train.py --optim multiplicative --temperature 0.001 --alpha1 100 --beta1 0.9 --model cnn --noise rayleigh --batchsize 100 --mc 10 --epochs 180 --priorprec 1 --dataset cifar10 --multinitoffset 0.001 --dafactor 4 --warmup 3
+```
+
+Testing,
+```
+python3 test.py --resultsfolder results/cifar10_cnn/multiplicative/run_0 --testbatchsize 2000
+```
+should give the following results:
+```
+results at g:
+  > testacc=86.12%, nll=0.7622, ece=0.1010
+results at model average (32 samples):
+  > testacc=87.24%, nll=0.4500, ece=0.0151
+```
+
 ### CIFAR and TinyImageNet
 To run the affine and additive learning rule on CIFAR and TinyImageNet dataset, you can use the following commands: 
 

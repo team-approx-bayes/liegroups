@@ -33,6 +33,7 @@ def main():
         trainstate = pickle.load(file)
         trainargs = pickle.load(file)
 
+    trainargs.mc = 1 # model does not need to have some mc weights
     with open(os.path.join(args.resultsfolder, 'info.txt'), 'rt', encoding='utf-8') as file:
         info = file.read()
         print('information of the run that has been loaded:')
@@ -41,7 +42,7 @@ def main():
     # prepare dataset
     try:
         trainset, testset, trainloader, testloader = \
-            dataloader(trainargs.dataset)(trainargs.batchsize, trainargs.testbatchsize, 
+            dataloader(trainargs.dataset)(trainargs.batchsize, args.testbatchsize, 
                                           trainargs.datasetfolder, trainargs.augment, num_workers)
         
     except KeyError:
@@ -105,6 +106,7 @@ def main():
         sampleprobs = [] 
         samplelogits = [] 
         for i in range(args.testmc):
+            print(f'  > start mc sample {i+1:3}/{args.testmc} at batch {batch_idx+1}/{len(testloader)}', end='\r')
             trainstate, theta_sampled = optsample(trainstate)
             logits = modelapply(theta_sampled, None, dat)
             samplelogits.append(logits) 
@@ -118,12 +120,12 @@ def main():
         nll_bayes += jnp.mean(jnp.sum(-tgt * logsumexp(temp, b=1/args.testmc, axis=0), axis=1))
 
     testacc_g = 100.0 * (float(correct_g) / float(total))
-    nll_g /= float(batch_idx) 
+    nll_g /= float(batch_idx + 1) 
     ece_g = ece(jnp.concatenate(batchprobs_g, axis=0), 
                 jnp.concatenate(batchlabels, axis=0))
 
     testacc_bayes = 100.0 * (float(correct_bayes) / float(total))
-    nll_bayes /= float(batch_idx) 
+    nll_bayes /= float(batch_idx + 1) 
     ece_bayes = ece(jnp.concatenate(batchprobs_bayes, axis=0), 
                     jnp.concatenate(batchlabels, axis=0))
 
@@ -131,6 +133,10 @@ def main():
     print('  > testacc=%.2f%%, nll=%.4f, ece=%.4f' % (testacc_g, nll_g, ece_g))
     print('results at model average (%d samples):' % args.testmc)
     print('  > testacc=%.2f%%, nll=%.4f, ece=%.4f' % (testacc_bayes, nll_bayes, ece_bayes))
+    with open(os.path.join(args.resultsfolder, 'ece.txt'), 'wt', encoding='utf-8') as file:
+        file.write(f"""results at g: \n > testacc={testacc_g:.2f}%, nll={nll_g:.4f}, ece={ece_g:.4f} \n""")
+        file.write(f"""results at model average ({args.testmc} samples): \n > testacc={testacc_bayes:.2f}%, nll={nll_bayes:.4f}, ece={ece_bayes:.4f} \n""")
+        file.write('\n')
 
 if __name__ == '__main__':
     main() 

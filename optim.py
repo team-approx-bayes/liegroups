@@ -204,7 +204,7 @@ def multiplicative_optimizer(lossgrad,
         noiseplus = noisegenerator(trainstate.optstate['g+'], trainstate.rngkey) 
         noiseminus = noisegenerator(trainstate.optstate['g-'], trainstate.rngkey) 
 
-        randomparam = jax.tree_map(lambda gp, gm, np, nm: gp * np - gm * nm, 
+        randomparam = jax.tree_map(lambda gp, gm, np, nm: gp * np[0] - gm * nm[0], 
                                    trainstate.optstate['g+'], trainstate.optstate['g-'],
                                    noiseplus, noiseminus)
 
